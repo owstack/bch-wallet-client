@@ -1,0 +1,26 @@
+{
+  "name": "bcccore-wallet-client",
+  "main": "index.js",
+  "version": "2.1.1",
+  "homepage": "https://github.com/owstack/bcccore-wallet-client",
+  "authors": ["Open Wallet Stack"],
+  "description": "Client for bcccore-wallet-service",
+  "keywords": [
+    "bitcoin",
+    "copay",
+    "multisig",
+    "wallet",
+    "client",
+    "bcccore"
+  ],
+  "ignore": [
+    "**/.*",
+    "lib",
+    "node_modules",
+    "Gruntfile.js",
+    "Makefile",
+    "index.js",
+    "test",
+    "Makefile"
+  ]
+}
