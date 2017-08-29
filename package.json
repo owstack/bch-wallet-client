@@ -11,8 +11,8 @@
     "wallet",
     "client",
     "bcccore",
-    "BWS",
-    "BWC"
+    "BCCWS",
+    "BCCWC"
   ],
   "engine": "node >= 0.12.0",
   "main": "index.js",

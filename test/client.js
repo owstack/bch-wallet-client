@@ -18,14 +18,14 @@ var log = require('../lib/log');
 var Bcccore = require('bcccore-lib');
 var BcccorePayPro = require('bcccore-payment-protocol');
 
-var BWS = require('bcccore-wallet-service');
+var BCCWS = require('bcccore-wallet-service');
 
 var Common = require('../lib/common');
 var Constants = Common.Constants;
 var Utils = Common.Utils;
 var Client = require('../lib');
-var ExpressApp = BWS.ExpressApp;
-var Storage = BWS.Storage;
+var ExpressApp = BCCWS.ExpressApp;
+var Storage = BCCWS.Storage;
 var TestData = require('./testdata');
 var ImportData = require('./legacyImportData.js');
 var Errors = require('../lib/errors');
@@ -43,7 +43,7 @@ helpers.toSatoshi = function(bcc) {
 helpers.newClient = function(app) {
   $.checkArgument(app);
   return new Client({
-    baseUrl: '/bws/api',
+    baseUrl: '/bccws/api',
     request: request(app),
   });
 };
@@ -281,7 +281,7 @@ describe('client API', function() {
         blockchainExplorerMock.reset();
         sandbox = sinon.sandbox.create();
 
-        if (!process.env.BWC_SHOW_LOGS) {
+        if (!process.env.BCCWC_SHOW_LOGS) {
           sandbox.stub(log, 'warn');
           sandbox.stub(log, 'info');
           sandbox.stub(log, 'error');
@@ -1372,7 +1372,7 @@ describe('client API', function() {
       });
     });
 
-    it('should set walletPrivKey from BWS', function(done) {
+    it('should set walletPrivKey from BCCWS', function(done) {
       clients[0].createWallet('mywallet', 'creator', 1, 1, {
         network: Constants.TESTNET
       }, function(err) {
@@ -1565,17 +1565,17 @@ describe('client API', function() {
   });
 
   describe('Version', function() {
-    it('should get version of bws', function(done) {
+    it('should get version of bccws', function(done) {
       clients[0].credentials = {};
       clients[0].getVersion(function(err, version) {
         if (err) {
-          // if bws is older version without getVersion support
+          // if bccws is older version without getVersion support
           err.should.be.an.instanceOf(Errors.NOT_FOUND);
         } else {
-          // if bws is up-to-date
+          // if bccws is up-to-date
           should.exist(version);
           should.exist(version.serviceVersion);
-          version.serviceVersion.should.contain('bws-');
+          version.serviceVersion.should.contain('bccws-');
         }
         done();
       });
@@ -3657,7 +3657,7 @@ describe('client API', function() {
           should.exist(err);
         });
 
-        it('should export & import with mnemonics + BWS', function(done) {
+        it('should export & import with mnemonics + BCCWS', function(done) {
           var c = clients[0].credentials;
           var walletId = c.walletId;
           var walletName = c.walletName;
@@ -3679,7 +3679,7 @@ describe('client API', function() {
           });
         });
 
-        it('should export & import with xprivkey + BWS', function(done) {
+        it('should export & import with xprivkey + BCCWS', function(done) {
           var c = clients[0].credentials;
           var walletId = c.walletId;
           var walletName = c.walletName;
@@ -3728,7 +3728,7 @@ describe('client API', function() {
             done();
           });
         });
-        it('should export & import with mnemonics + BWS', function(done) {
+        it('should export & import with mnemonics + BCCWS', function(done) {
           clients[0].seedFromMnemonic('pink net pet stove boy receive task nephew book spawn pull regret', {
             network: Constants.LIVENET,
             nonCompliantDerivation: true,
