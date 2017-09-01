@@ -909,7 +909,7 @@ describe('client API', function() {
         var signatures = Client.signTxp(txp, derivedPrivateKey['BIP44']);
         signatures.length.should.be.equal(utxos.length);
       });
-      it('should sign v3 proposal correctly', function() {
+      it('should sign BCH proposal correctly', function() {
         var toAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
@@ -941,6 +941,8 @@ describe('client API', function() {
         };
         var signatures = Client.signTxp(txp, derivedPrivateKey['BIP44']);
         signatures.length.should.be.equal(utxos.length);
+        signatures[0].should.equal('304402200aa70dfe99e25792c4a7edf773477100b6659f1ba906e551e6e5218ec32d273402202e31c575edb55b2da824e8cafd02b4769017ef63d3c888718cf6f0243c570d41');
+        signatures[1].should.equal('3045022100afde45e125f654453493b40d288cd66e8a011c66484509ae730a2686c9dff30502201bf34a6672c5848dd010b89ea1a5f040731acf78fec062f61b305e9ce32798a5');
       });
     });
   });
@@ -2472,7 +2474,58 @@ describe('client API', function() {
         });
       });
     });
+  });
+});
 
+describe('Transaction Proposal signing', function() {
+    function setup(m, n, network, cb) {
+      helpers.createAndJoinWallet(clients, m, n, {
+        network: network,
+      }, function(w) {
+        clients[0].createAddress(function(err, address) {
+          should.not.exist(err);
+          blockchainExplorerMock.setUtxo(address, 2, 2);
+          blockchainExplorerMock.setUtxo(address, 2, 2);
+          blockchainExplorerMock.setUtxo(address, 1, 2, 0);
+          cb();
+        });
+      });
+    };
+
+    beforeEach(function(done) {
+      setup(1, 1, 'livenet', done);
+    });
+
+    it.only('Should sign proposal', function(done) {
+      var toAddress = '1PuKMvRFfwbLXyEPXZzkGi111gMUCs6uE3';
+      var opts = {
+        outputs: [{
+          amount: 1e8,
+          toAddress: toAddress,
+        }, {
+          amount: 2e8,
+          toAddress: toAddress,
+        }],
+        feePerKb: 100e2,
+        message: 'just some message'
+      };
+      clients[0].createTxProposal(opts, function(err, txp) {
+        should.not.exist(err);
+        should.exist(txp);
+        clients[0].publishTxProposal({
+          txp: txp,
+        }, function(err, publishedTxp) {
+          should.not.exist(err);
+          should.exist(publishedTxp);
+          publishedTxp.status.should.equal('pending');
+          clients[0].signTxProposal(publishedTxp, function(err, txp) {
+            should.not.exist(err);
+            txp.status.should.equal('accepted');
+            done();
+          });
+        });
+      });
+    });
     it('Should sign proposal with no change', function(done) {
       var toAddress = 'n2TBMPzPECGUfcT2EByiTJ12TPZkhN2mN5';
       var opts = {
