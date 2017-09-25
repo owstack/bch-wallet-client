@@ -2475,9 +2475,9 @@ describe('client API', function() {
       });
     });
   });
-});
 
-describe('Transaction Proposal signing', function() {
+  describe('Transaction Proposal signing', function() {
+    this.timeout(5000);
     function setup(m, n, network, cb) {
       helpers.createAndJoinWallet(clients, m, n, {
         network: network,
@@ -2497,7 +2497,7 @@ describe('Transaction Proposal signing', function() {
     });
 
     it.only('Should sign proposal', function(done) {
-      var toAddress = '1PuKMvRFfwbLXyEPXZzkGi111gMUCs6uE3';
+      var toAddress = 'CfNCvxmKYzZsS78pDKKfrDd2doZt3w4jUs';
       var opts = {
         outputs: [{
           amount: 1e8,
@@ -3336,6 +3336,7 @@ describe('Transaction Proposal signing', function() {
       });
     });
     it('should get transaction history decorated with proposal & notes', function(done) {
+      this.timeout(5000);
       async.waterfall([
 
         function(next) {

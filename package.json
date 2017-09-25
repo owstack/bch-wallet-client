@@ -12,7 +12,7 @@
     "BCCWS",
     "BCCWC"
   ],
-  "engine": "node >= 0.12.0",
+  "engine": "node >= 8.0.0",
   "main": "index.js",
   "repository": {
     "url": "git@github.com:owstack/bcccore-wallet-client.git",
