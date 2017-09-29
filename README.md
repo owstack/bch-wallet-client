@@ -1,11 +1,11 @@
-Bcccore Wallet Client
+Bch Wallet Client
 ======
 
-[![NPM Package](https://img.shields.io/npm/v/bcccore-wallet-client.svg?style=flat-square)](https://www.npmjs.org/package/bcccore-wallet-client)
-[![Build Status](https://img.shields.io/travis/owstack/bcccore-wallet-client.svg?branch=master&style=flat-square)](https://travis-ci.org/owstack/bcccore-wallet-client)
-[![Coverage Status](https://coveralls.io/repos/owstack/bcccore-wallet-client/badge.svg)](https://coveralls.io/r/owstack/bcccore-wallet-client)
+[![NPM Package](https://img.shields.io/npm/v/bch-wallet-client.svg?style=flat-square)](https://www.npmjs.org/package/bch-wallet-client)
+[![Build Status](https://img.shields.io/travis/owstack/bch-wallet-client.svg?branch=master&style=flat-square)](https://travis-ci.org/owstack/bch-wallet-client)
+[![Coverage Status](https://coveralls.io/repos/owstack/bch-wallet-client/badge.svg)](https://coveralls.io/r/owstack/bch-wallet-client)
 
-The *official* client library for [bcccore-wallet-service](https://github.com/owstack/bcccore-wallet-service).
+The client library for [bch-wallet-service](https://github.com/owstack/bch-wallet-service).
 
 ## Attribution
 
@@ -13,38 +13,38 @@ This repository was created by copy forking [bitcore-wallet-client commit d986bb
 
 ## Description
 
-This package communicates with BCCWS [Bcccore wallet service](https://github.com/owstack/bcccore-wallet-service) using the REST API. All REST endpoints are wrapped as simple async methods. All relevant responses from BCCWS are checked independently by the peers, thus the importance of using this library when talking to a third party BCCWS instance.
+This package communicates with BCHWS [Bch wallet service](https://github.com/owstack/bch-wallet-service) using the REST API. All REST endpoints are wrapped as simple async methods. All relevant responses from BCHWS are checked independently by the peers, thus the importance of using this library when talking to a third party BCHWS instance.
 
-See [Bcccore-wallet](https://github.com/owstack/bcccore-wallet) for a simple CLI wallet implementation that relays on BCCWS and uses bcccore-wallet-client.
+See [Bch-wallet](https://github.com/owstack/bch-wallet) for a simple CLI wallet implementation that relays on BCHWS and uses bch-wallet-client.
 
 ## Get Started
 
-You can start using bcccore-wallet-client in any of these two ways:
+You can start using bch-wallet-client in any of these two ways:
 
-* via [Bower](http://bower.io/): by running `bower install bcccore-wallet-client` from your console
-* or via [NPM](https://www.npmjs.com/package/bcccore-wallet-client): by running `npm install bcccore-wallet-client` from your console.
+* via [Bower](http://bower.io/): by running `bower install bch-wallet-client` from your console
+* or via [NPM](https://www.npmjs.com/package/bch-wallet-client): by running `npm install bch-wallet-client` from your console.
 
 ## Example
 
-Start your own local [Bcccore wallet service](https://github.com/owstack/bcccore-wallet-service) instance. In this example we assume you have `bcccore-wallet-service` running on your `localhost:3232`.
+Start your own local [Bch wallet service](https://github.com/owstack/bch-wallet-service) instance. In this example we assume you have `bch-wallet-service` running on your `localhost:3232`.
 
 Then create two files `irene.js` and `tomas.js` with the content below:
 
 **irene.js**
 
 ``` javascript
-var Client = require('bcccore-wallet-client');
+var Client = require('bch-wallet-client');
 
 
 var fs = require('fs');
-var BCCWS_INSTANCE_URL = 'https://bccws.openwalletstack.com/bccws/api'
+var BCHWS_INSTANCE_URL = 'https://bchws.openwalletstack.com/bchws/api'
 
 var client = new Client({
-  baseUrl: BCCWS_INSTANCE_URL,
+  baseUrl: BCHWS_INSTANCE_URL,
   verbose: false,
 });
 
-client.createWallet("My Wallet", "Irene", 2, 2, {network: 'testnet/bcc'}, function(err, secret) {
+client.createWallet("My Wallet", "Irene", 2, 2, {network: 'testnet/bch'}, function(err, secret) {
   if (err) {
     console.log('error: ',err);
     return
@@ -59,11 +59,11 @@ client.createWallet("My Wallet", "Irene", 2, 2, {network: 'testnet/bcc'}, functi
 
 ``` javascript
 
-var Client = require('bcccore-wallet-client');
+var Client = require('bch-wallet-client');
 
 
 var fs = require('fs');
-var BCCWS_INSTANCE_URL = 'https://bccws.openwalletstack.com/bccws/api'
+var BCHWS_INSTANCE_URL = 'https://bchws.openwalletstack.com/bchws/api'
 
 var secret = process.argv[2];
 if (!secret) {
@@ -73,7 +73,7 @@ if (!secret) {
 }
 
 var client = new Client({
-  baseUrl: BCCWS_INSTANCE_URL,
+  baseUrl: BCHWS_INSTANCE_URL,
   verbose: false,
 });
 
@@ -109,10 +109,10 @@ client.joinWallet(secret, "Tomas", {}, function(err, wallet) {
 });
 ```
 
-Install `bcccore-wallet-client` before start:
+Install `bch-wallet-client` before start:
 
 ```
-npm i bcccore-wallet-client
+npm i bch-wallet-client
 ```
 
 Create a new wallet with the first script:
@@ -168,7 +168,7 @@ Seed from random
 
 **opts**: `Object`, Seed from random
 
-**opts.network**: `String`, default 'livenet/bcc'
+**opts.network**: `String`, default 'livenet'
 
 
 ### API.seedFromRandomWithMnemonic(opts, opts.network, opts.passphrase, opts.language, opts.account)
@@ -179,7 +179,7 @@ Seed from random with mnemonic
 
 **opts**: `Object`, Seed from random with mnemonic
 
-**opts.network**: `String`, default 'livenet/bcc'
+**opts.network**: `String`, default 'livenet'
 
 **opts.passphrase**: `String`, Seed from random with mnemonic
 
@@ -213,7 +213,7 @@ Can throw an error if mnemonic is invalid
 **opts**: `Object`, Seed from Mnemonics (language autodetected)
 Can throw an error if mnemonic is invalid
 
-**opts.network**: `String`, default 'livenet/bcc'
+**opts.network**: `String`, default 'livenet'
 
 **opts.passphrase**: `String`, Seed from Mnemonics (language autodetected)
 Can throw an error if mnemonic is invalid
@@ -284,7 +284,7 @@ Can throw an error if mnemonic is invalid
 **opts**: `Object`, Import from Mnemonics (language autodetected)
 Can throw an error if mnemonic is invalid
 
-**opts.network**: `String`, default 'livenet/bcc'
+**opts.network**: `String`, default 'livenet'
 
 **opts.passphrase**: `String`, Import from Mnemonics (language autodetected)
 Can throw an error if mnemonic is invalid
@@ -401,7 +401,7 @@ Get current fee levels for the specified network
 
 **Parameters**
 
-**network**: `string`, 'livenet/bcc' (default) or 'testnet/bcc'
+**network**: `string`, 'livenet' (default) or 'testnet'
 
 **cb**: `Callback`, Get current fee levels for the specified network
 
@@ -432,7 +432,7 @@ Create a wallet.
 
 **opts**: `object`, (optional: advanced options)
 
-**opts.network**: `string`, 'livenet/bcc' or 'testnet/bcc'
+**opts.network**: `string`, 'livenet' or 'testnet'
 
 **opts.walletPrivKey**: `String`, set a walletPrivKey (instead of random)
 
