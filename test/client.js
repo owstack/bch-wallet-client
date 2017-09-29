@@ -15,35 +15,35 @@ var tingodb = require('tingodb')({
 
 var log = require('../lib/log');
 
-var Bcccore = require('bcccore-lib');
-var BcccorePayPro = require('bcccore-payment-protocol');
+var bchLib = require('bch-lib');
+var bchPayPro = require('bch-payment-protocol');
 
-var BCCWS = require('bcccore-wallet-service');
+var BCHWS = require('bch-wallet-service');
 
 var Common = require('../lib/common');
 var Constants = Common.Constants;
 var Utils = Common.Utils;
 var Client = require('../lib');
-var ExpressApp = BCCWS.ExpressApp;
-var Storage = BCCWS.Storage;
+var ExpressApp = BCHWS.ExpressApp;
+var Storage = BCHWS.Storage;
 var TestData = require('./testdata');
 var ImportData = require('./legacyImportData.js');
 var Errors = require('../lib/errors');
 
 var helpers = {};
 
-helpers.toSatoshi = function(bcc) {
-  if (_.isArray(bcc)) {
-    return _.map(bcc, helpers.toSatoshi);
+helpers.toSatoshi = function(bch) {
+  if (_.isArray(bch)) {
+    return _.map(bch, helpers.toSatoshi);
   } else {
-    return parseFloat((bcc * 1e8).toPrecision(12));
+    return parseFloat((bch * 1e8).toPrecision(12));
   }
 };
 
 helpers.newClient = function(app) {
   $.checkArgument(app);
   return new Client({
-    baseUrl: '/bccws/api',
+    baseUrl: '/bchws/api',
     request: request(app),
   });
 };
@@ -82,16 +82,16 @@ helpers.generateUtxos = function(scriptType, publicKeyRing, path, requiredSignat
     var scriptPubKey;
     switch (scriptType) {
       case Constants.SCRIPT_TYPES.P2SH:
-        scriptPubKey = Bcccore.Script.buildMultisigOut(address.publicKeys, requiredSignatures).toScriptHashOut();
+        scriptPubKey = bchLib.Script.buildMultisigOut(address.publicKeys, requiredSignatures).toScriptHashOut();
         break;
       case Constants.SCRIPT_TYPES.P2PKH:
-        scriptPubKey = Bcccore.Script.buildPublicKeyHashOut(address.address);
+        scriptPubKey = bchLib.Script.buildPublicKeyHashOut(address.address);
         break;
     }
     should.exist(scriptPubKey);
 
     var obj = {
-      txid: Bcccore.crypto.Hash.sha256(new Buffer(i)).toString('hex'),
+      txid: bchLib.crypto.Hash.sha256(new Buffer(i)).toString('hex'),
       vout: 100,
       satoshis: helpers.toSatoshi(amount),
       scriptPubKey: scriptPubKey.toBuffer().toString('hex'),
@@ -194,15 +194,15 @@ blockchainExplorerMock.setUtxo = function(address, amount, m, confirmations) {
   var scriptPubKey;
   switch (address.type) {
     case Constants.SCRIPT_TYPES.P2SH:
-      scriptPubKey = address.publicKeys ? Bcccore.Script.buildMultisigOut(address.publicKeys, m).toScriptHashOut() : '';
+      scriptPubKey = address.publicKeys ? bchLib.Script.buildMultisigOut(address.publicKeys, m).toScriptHashOut() : '';
       break;
     case Constants.SCRIPT_TYPES.P2PKH:
-      scriptPubKey = Bcccore.Script.buildPublicKeyHashOut(address.address);
+      scriptPubKey = bchLib.Script.buildPublicKeyHashOut(address.address);
       break;
   }
   should.exist(scriptPubKey);
   blockchainExplorerMock.utxos.push({
-    txid: Bcccore.crypto.Hash.sha256(new Buffer(Math.random() * 100000)).toString('hex'),
+    txid: bchLib.crypto.Hash.sha256(new Buffer(Math.random() * 100000)).toString('hex'),
     vout: Math.floor((Math.random() * 10) + 1),
     amount: amount,
     address: address.address,
@@ -213,7 +213,7 @@ blockchainExplorerMock.setUtxo = function(address, amount, m, confirmations) {
 
 blockchainExplorerMock.broadcast = function(raw, cb) {
   blockchainExplorerMock.lastBroadcasted = raw;
-  return cb(null, (new Bcccore.Transaction(raw)).id);
+  return cb(null, (new bchLib.Transaction(raw)).id);
 };
 
 blockchainExplorerMock.setHistory = function(txs) {
@@ -281,7 +281,7 @@ describe('client API', function() {
         blockchainExplorerMock.reset();
         sandbox = sinon.sandbox.create();
 
-        if (!process.env.BCCWC_SHOW_LOGS) {
+        if (!process.env.BCHWC_SHOW_LOGS) {
           sandbox.stub(log, 'warn');
           sandbox.stub(log, 'info');
           sandbox.stub(log, 'error');
@@ -327,9 +327,9 @@ describe('client API', function() {
   });
 
   describe('Client Internals', function() {
-    it('should expose bcccore', function() {
-      should.exist(Client.Bcccore);
-      should.exist(Client.Bcccore.HDPublicKey);
+    it('should expose bch', function() {
+      should.exist(Client.bchLib);
+      should.exist(Client.bchLib.HDPublicKey);
     });
   });
 
@@ -475,9 +475,9 @@ describe('client API', function() {
   describe('Build & sign txs', function() {
     var masterPrivateKey = 'tprv8ZgxMBicQKsPd8U9aBBJ5J2v8XMwKwZvf8qcu2gLK5FRrsrPeSgkEcNHqKx4zwv6cP536m68q2UD7wVM24zdSCpaJRmpowaeJTeVMXL5v5k';
     var derivedPrivateKey = {
-      'BIP44': new Bcccore.HDPrivateKey(masterPrivateKey).deriveChild("m/44'/1'/0'").toString(),
-      'BIP45': new Bcccore.HDPrivateKey(masterPrivateKey).deriveChild("m/45'").toString(),
-      'BIP48': new Bcccore.HDPrivateKey(masterPrivateKey).deriveChild("m/48'/1'/0'").toString(),
+      'BIP44': new bchLib.HDPrivateKey(masterPrivateKey).deriveChild("m/44'/1'/0'").toString(),
+      'BIP45': new bchLib.HDPrivateKey(masterPrivateKey).deriveChild("m/45'").toString(),
+      'BIP48': new bchLib.HDPrivateKey(masterPrivateKey).deriveChild("m/48'/1'/0'").toString(),
     };
 
     describe('#buildTx', function() {
@@ -486,7 +486,7 @@ describe('client API', function() {
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP44']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP44']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [1000, 2000]);
@@ -509,7 +509,7 @@ describe('client API', function() {
         _.isString(t).should.be.true;
         /^[\da-f]+$/.test(t).should.be.true;
 
-        var t2 = new Bcccore.Transaction(t);
+        var t2 = new bchLib.Transaction(t);
         t2.inputs.length.should.equal(2);
         t2.outputs.length.should.equal(2);
         t2.outputs[0].satoshis.should.equal(1200);
@@ -519,7 +519,7 @@ describe('client API', function() {
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP44']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP44']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [1000, 2000]);
@@ -538,13 +538,13 @@ describe('client API', function() {
           addressType: 'P2PKH',
         };
         var t = Utils.buildTx(txp);
-        var bcccoreError = t.getSerializationError({
+        var bchError = t.getSerializationError({
           disableIsFullySigned: true,
           disableSmallFees: true,
           disableLargeFees: true,
         });
 
-        should.not.exist(bcccoreError);
+        should.not.exist(bchError);
         t.getFee().should.equal(10050);
       });
       it('should build a tx correctly (BIP48)', function() {
@@ -552,7 +552,7 @@ describe('client API', function() {
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP48']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP48']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [1000, 2000]);
@@ -571,13 +571,13 @@ describe('client API', function() {
           addressType: 'P2PKH',
         };
         var t = Utils.buildTx(txp);
-        var bcccoreError = t.getSerializationError({
+        var bchError = t.getSerializationError({
           disableIsFullySigned: true,
           disableSmallFees: true,
           disableLargeFees: true,
         });
 
-        should.not.exist(bcccoreError);
+        should.not.exist(bchError);
         t.getFee().should.equal(10050);
       });
       it('should protect from creating excessive fee', function() {
@@ -585,7 +585,7 @@ describe('client API', function() {
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP44']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP44']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [1, 2]);
@@ -603,9 +603,9 @@ describe('client API', function() {
           addressType: 'P2PKH',
         };
 
-        var x = Utils.newBcccoreTransaction;
+        var x = Utils.newBchTransaction;
 
-        Utils.newBcccoreTransaction = function() {
+        Utils.newBchTransaction = function() {
           return {
             from: sinon.stub(),
             to: sinon.stub(),
@@ -621,14 +621,14 @@ describe('client API', function() {
           var t = Utils.buildTx(txp);
         }).should.throw('Illegal State');
 
-        Utils.newBcccoreTransaction = x;
+        Utils.newBchTransaction = x;
       });
       it('should build a tx with multiple outputs', function() {
         var toAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP44']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP44']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [1000, 2000]);
@@ -653,17 +653,17 @@ describe('client API', function() {
           addressType: 'P2PKH',
         };
         var t = Utils.buildTx(txp);
-        var bcccoreError = t.getSerializationError({
+        var bchError = t.getSerializationError({
           disableIsFullySigned: true,
         });
-        should.not.exist(bcccoreError);
+        should.not.exist(bchError);
       });
       it('should build a tx with provided output scripts', function() {
         var toAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP44']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP44']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [0.001]);
@@ -691,10 +691,10 @@ describe('client API', function() {
           addressType: 'P2PKH',
         };
         var t = Utils.buildTx(txp);
-        var bcccoreError = t.getSerializationError({
+        var bchError = t.getSerializationError({
           disableIsFullySigned: true,
         });
-        should.not.exist(bcccoreError);
+        should.not.exist(bchError);
         t.outputs.length.should.equal(4);
         t.outputs[0].script.toHex().should.equal(txp.outputs[0].script);
         t.outputs[0].satoshis.should.equal(txp.outputs[0].amount);
@@ -702,7 +702,7 @@ describe('client API', function() {
         t.outputs[1].satoshis.should.equal(txp.outputs[1].amount);
         t.outputs[2].script.toHex().should.equal(txp.outputs[2].script);
         t.outputs[2].satoshis.should.equal(txp.outputs[2].amount);
-        var changeScript = Bcccore.Script.fromAddress(txp.changeAddress.address).toHex();
+        var changeScript = bchLib.Script.fromAddress(txp.changeAddress.address).toHex();
         t.outputs[3].script.toHex().should.equal(changeScript);
       });
       it('should fail if provided output has no either toAddress or script', function() {
@@ -710,7 +710,7 @@ describe('client API', function() {
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP44']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP44']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [0.001]);
@@ -741,25 +741,25 @@ describe('client API', function() {
 
         txp.outputs[0].toAddress = "18433T2TSgajt9jWhcTBw4GoNREA6LpX3E";
         var t = Utils.buildTx(txp);
-        var bcccoreError = t.getSerializationError({
+        var bchError = t.getSerializationError({
           disableIsFullySigned: true,
         });
-        should.not.exist(bcccoreError);
+        should.not.exist(bchError);
 
         delete txp.outputs[0].toAddress;
         txp.outputs[0].script = "512103ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff210314a96cd6f5a20826070173fe5b7e9797f21fc8ca4a55bcb2d2bde99f55dd352352ae";
         t = Utils.buildTx(txp);
-        var bcccoreError = t.getSerializationError({
+        var bchError = t.getSerializationError({
           disableIsFullySigned: true,
         });
-        should.not.exist(bcccoreError);
+        should.not.exist(bchError);
       });
       it('should build a v3 tx proposal', function() {
         var toAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP44']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP44']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [1000, 2000]);
@@ -785,10 +785,10 @@ describe('client API', function() {
           addressType: 'P2PKH',
         };
         var t = Utils.buildTx(txp);
-        var bcccoreError = t.getSerializationError({
+        var bchError = t.getSerializationError({
           disableIsFullySigned: true,
         });
-        should.not.exist(bcccoreError);
+        should.not.exist(bchError);
       });
     });
 
@@ -798,7 +798,7 @@ describe('client API', function() {
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP45']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP45']),
         }];
 
         var utxos = helpers.generateUtxos('P2SH', publicKeyRing, 'm/2147483647/0/0', 1, [1000, 2000]);
@@ -823,7 +823,7 @@ describe('client API', function() {
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP44']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP44']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [1000, 2000]);
@@ -848,7 +848,7 @@ describe('client API', function() {
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP44']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP44']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [1000, 2000]);
@@ -880,7 +880,7 @@ describe('client API', function() {
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP44']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP44']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [0.001]);
@@ -914,7 +914,7 @@ describe('client API', function() {
         var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
         var publicKeyRing = [{
-          xPubKey: new Bcccore.HDPublicKey(derivedPrivateKey['BIP44']),
+          xPubKey: new bchLib.HDPublicKey(derivedPrivateKey['BIP44']),
         }];
 
         var utxos = helpers.generateUtxos('P2PKH', publicKeyRing, 'm/1/0', 1, [1000, 2000]);
@@ -952,7 +952,7 @@ describe('client API', function() {
       var i = 0;
       while (i++ < 100) {
         var walletId = Uuid.v4();
-        var walletPrivKey = new Bcccore.PrivateKey();
+        var walletPrivKey = new bchLib.PrivateKey();
         var network = i % 2 == 0 ? Constants.TESTNET : Constants.LIVENET;
         var secret = Client._buildSecret(walletId, walletPrivKey, network);
         var result = Client.parseSecret(secret);
@@ -969,7 +969,7 @@ describe('client API', function() {
 
     it('should create secret and parse secret from string ', function() {
       var walletId = Uuid.v4();
-      var walletPrivKey = new Bcccore.PrivateKey();
+      var walletPrivKey = new bchLib.PrivateKey();
       var network = Constants.TESTNET;
       var secret = Client._buildSecret(walletId, walletPrivKey.toString(), network);
       var result = Client.parseSecret(secret);
@@ -1070,7 +1070,7 @@ describe('client API', function() {
     });
     it('should be able to access wallet name in non-encrypted wallet (legacy)', function(done) {
       clients[0].seedFromRandomWithMnemonic();
-      var wpk = new Bcccore.PrivateKey();
+      var wpk = new bchLib.PrivateKey();
       var args = {
         name: 'mywallet',
         m: 1,
@@ -1277,7 +1277,7 @@ describe('client API', function() {
       helpers.createAndJoinWallet(clients, 2, 3, function() {
         helpers.tamperResponse([clients[0], clients[1]], 'get', '/v1/wallets/', {}, function(status) {
           // Replace caller's pubkey
-          status.wallet.copayers[1].xPubKey = (new Bcccore.HDPrivateKey()).publicKey;
+          status.wallet.copayers[1].xPubKey = (new bchLib.HDPrivateKey()).publicKey;
           // Add a correct signature
           status.wallet.copayers[1].xPubKeySignature = Utils.signMessage(
             status.wallet.copayers[1].xPubKey.toString(),
@@ -1374,7 +1374,7 @@ describe('client API', function() {
       });
     });
 
-    it('should set walletPrivKey from BCCWS', function(done) {
+    it('should set walletPrivKey from BCHWS', function(done) {
       clients[0].createWallet('mywallet', 'creator', 1, 1, {
         network: Constants.TESTNET
       }, function(err) {
@@ -1567,17 +1567,17 @@ describe('client API', function() {
   });
 
   describe('Version', function() {
-    it('should get version of bccws', function(done) {
+    it('should get version of bchws', function(done) {
       clients[0].credentials = {};
       clients[0].getVersion(function(err, version) {
         if (err) {
-          // if bccws is older version without getVersion support
+          // if bchws is older version without getVersion support
           err.should.be.an.instanceOf(Errors.NOT_FOUND);
         } else {
-          // if bccws is up-to-date
+          // if bchws is up-to-date
           should.exist(version);
           should.exist(version.serviceVersion);
-          version.serviceVersion.should.contain('bccws-');
+          version.serviceVersion.should.contain('bchws-');
         }
         done();
       });
@@ -2727,8 +2727,8 @@ describe('client API', function() {
               clients[1].broadcastTxProposal(yy, function(err, zz, memo) {
                 should.not.exist(err);
                 var args = http.lastCall.args[0];
-                var data = BcccorePayPro.Payment.decode(args.body);
-                var pay = new BcccorePayPro();
+                var data = bchPayPro.Payment.decode(args.body);
+                var pay = new bchPayPro();
                 var p = pay.makePayment(data);
                 var refund_to = p.get('refund_to');
                 refund_to.length.should.equal(1);
@@ -2739,8 +2739,8 @@ describe('client API', function() {
                 amount.low.should.equal(404500);
                 amount.high.should.equal(0);
                 var s = refund_to.get('script');
-                s = new Bcccore.Script(s.buffer.slice(s.offset, s.limit));
-                var addr = new Bcccore.Address.fromScript(s, Constants.TESTNET);
+                s = new bchLib.Script(s.buffer.slice(s.offset, s.limit));
+                var addr = new bchLib.Address.fromScript(s, Constants.TESTNET);
                 addr.toString().should.equal(changeAddress);
                 done();
               });
@@ -2764,11 +2764,11 @@ describe('client API', function() {
 
                 should.not.exist(err);
                 var args = http.lastCall.args[0];
-                var data = BcccorePayPro.Payment.decode(args.body);
-                var pay = new BcccorePayPro();
+                var data = bchPayPro.Payment.decode(args.body);
+                var pay = new bchPayPro();
                 var p = pay.makePayment(data);
                 var rawTx = p.get('transactions')[0].toBuffer();
-                var tx = new Bcccore.Transaction(rawTx);
+                var tx = new bchLib.Transaction(rawTx);
                 var script = tx.inputs[0].script;
                 script.isScriptHashIn().should.equal(true);
                 done();
@@ -2821,8 +2821,8 @@ describe('client API', function() {
             clients[0].broadcastTxProposal(xx, function(err, zz, memo) {
               should.not.exist(err);
               var args = http.lastCall.args[0];
-              var data = BcccorePayPro.Payment.decode(args.body);
-              var pay = new BcccorePayPro();
+              var data = bchPayPro.Payment.decode(args.body);
+              var pay = new bchPayPro();
               var p = pay.makePayment(data);
               var refund_to = p.get('refund_to');
               refund_to.length.should.equal(1);
@@ -2833,8 +2833,8 @@ describe('client API', function() {
               amount.low.should.equal(404500);
               amount.high.should.equal(0);
               var s = refund_to.get('script');
-              s = new Bcccore.Script(s.buffer.slice(s.offset, s.limit));
-              var addr = new Bcccore.Address.fromScript(s, Constants.TESTNET);
+              s = new bchLib.Script(s.buffer.slice(s.offset, s.limit));
+              var addr = new bchLib.Address.fromScript(s, Constants.TESTNET);
               addr.toString().should.equal(changeAddress);
               done();
             });
@@ -2854,11 +2854,11 @@ describe('client API', function() {
             clients[0].broadcastTxProposal(xx, function(err, zz, memo) {
               should.not.exist(err);
               var args = http.lastCall.args[0];
-              var data = BcccorePayPro.Payment.decode(args.body);
-              var pay = new BcccorePayPro();
+              var data = bchPayPro.Payment.decode(args.body);
+              var pay = new bchPayPro();
               var p = pay.makePayment(data);
               var rawTx = p.get('transactions')[0].toBuffer();
-              var tx = new Bcccore.Transaction(rawTx);
+              var tx = new bchLib.Transaction(rawTx);
               var script = tx.inputs[0].script;
               script.isPublicKeyHashIn().should.equal(true);
               done();
@@ -3007,7 +3007,7 @@ describe('client API', function() {
               clients[0].broadcastTxProposal(txp, function(err, txp) {
                 should.not.exist(err);
                 txp.status.should.equal('broadcasted');
-                txp.txid.should.equal((new Bcccore.Transaction(blockchainExplorerMock.lastBroadcasted)).id);
+                txp.txid.should.equal((new bchLib.Transaction(blockchainExplorerMock.lastBroadcasted)).id);
                 done();
               });
             } else {
@@ -3072,7 +3072,7 @@ describe('client API', function() {
               clients[0].broadcastTxProposal(txp, function(err, txp) {
                 should.not.exist(err);
                 txp.status.should.equal('broadcasted');
-                txp.txid.should.equal((new Bcccore.Transaction(blockchainExplorerMock.lastBroadcasted)).id);
+                txp.txid.should.equal((new bchLib.Transaction(blockchainExplorerMock.lastBroadcasted)).id);
                 txp.outputs[0].message.should.equal('output 0');
                 txp.message.should.equal('hello');
                 done();
@@ -3145,7 +3145,7 @@ describe('client API', function() {
                   txp.status.should.equal('accepted');
                   clients[1].broadcastTxProposal(txp, function(err, txp) {
                     txp.status.should.equal('broadcasted');
-                    txp.txid.should.equal((new Bcccore.Transaction(blockchainExplorerMock.lastBroadcasted)).id);
+                    txp.txid.should.equal((new bchLib.Transaction(blockchainExplorerMock.lastBroadcasted)).id);
                     done();
                   });
                 });
@@ -3208,7 +3208,7 @@ describe('client API', function() {
                   txp.status.should.equal('accepted');
                   clients[2].broadcastTxProposal(txp, function(err, txp) {
                     txp.status.should.equal('broadcasted');
-                    txp.txid.should.equal((new Bcccore.Transaction(blockchainExplorerMock.lastBroadcasted)).id);
+                    txp.txid.should.equal((new bchLib.Transaction(blockchainExplorerMock.lastBroadcasted)).id);
                     done();
                   });
                 });
@@ -3711,7 +3711,7 @@ describe('client API', function() {
           should.exist(err);
         });
 
-        it('should export & import with mnemonics + BCCWS', function(done) {
+        it('should export & import with mnemonics + BCHWS', function(done) {
           var c = clients[0].credentials;
           var walletId = c.walletId;
           var walletName = c.walletName;
@@ -3733,7 +3733,7 @@ describe('client API', function() {
           });
         });
 
-        it('should export & import with xprivkey + BCCWS', function(done) {
+        it('should export & import with xprivkey + BCHWS', function(done) {
           var c = clients[0].credentials;
           var walletId = c.walletId;
           var walletName = c.walletName;
@@ -3782,7 +3782,7 @@ describe('client API', function() {
             done();
           });
         });
-        it('should export & import with mnemonics + BCCWS', function(done) {
+        it('should export & import with mnemonics + BCHWS', function(done) {
           clients[0].seedFromMnemonic('pink net pet stove boy receive task nephew book spawn pull regret', {
             network: Constants.LIVENET,
             nonCompliantDerivation: true,
@@ -4891,7 +4891,7 @@ describe('client API', function() {
             var c = clients[0].credentials;
 
             // Ggenerate a new priv key, not registered
-            var k = new Bcccore.PrivateKey();
+            var k = new bchLib.PrivateKey();
             c.requestPrivKey = k.toString();
             c.requestPubKey = k.toPublicKey().toString();
             done();
@@ -4926,7 +4926,7 @@ describe('client API', function() {
           url.should.contain('/copayers');
           body.should.not.contain('pepe');
 
-          var k = new Bcccore.PrivateKey(key);
+          var k = new bchLib.PrivateKey(key);
           var c = clients[0].credentials;
           c.requestPrivKey = k.toString();
           c.requestPubKey = k.toPublicKey().toString();
@@ -4963,7 +4963,7 @@ describe('client API', function() {
         clients[0].addAccess({
           generateNewKey: true
         }, function(err, x, key) {
-          var k = new Bcccore.PrivateKey(key);
+          var k = new bchLib.PrivateKey(key);
           var c = clients[0].credentials;
           c.requestPrivKey = k.toString();
           c.requestPubKey = k.toPublicKey().toString();
@@ -5082,7 +5082,7 @@ describe('client API', function() {
           tx.outputs.length.should.equal(1);
           var output = tx.outputs[0];
           output.satoshis.should.equal(123 * 1e8 - 10000);
-          var script = new Bcccore.Script.buildPublicKeyHashOut(Bcccore.Address.fromString('1GG3JQikGC7wxstyavUBDoCJ66bWLLENZC'));
+          var script = new bchLib.Script.buildPublicKeyHashOut(bchLib.Address.fromString('1GG3JQikGC7wxstyavUBDoCJ66bWLLENZC'));
           output.script.toString('hex').should.equal(script.toString('hex'));
           done();
         });
@@ -5092,7 +5092,7 @@ describe('client API', function() {
     it('should handle tx serialization error when building tx', function(done) {
       var sandbox = sinon.sandbox.create();
 
-      var se = sandbox.stub(Bcccore.Transaction.prototype, 'serialize', function() {
+      var se = sandbox.stub(bchLib.Transaction.prototype, 'serialize', function() {
         throw new Error('this is an error');
       });
 
@@ -5141,15 +5141,15 @@ describe('client API', function() {
         }],
         expected: '0.01',
       }, {
-        args: [1, 'bcc'],
+        args: [1, 'bch'],
         expected: '0.00',
       }, {
-        args: [1, 'bcc', {
+        args: [1, 'bch', {
           fullPrecision: true
         }],
         expected: '0.00000001',
       }, {
-        args: [1234567899999, 'bcc', {
+        args: [1234567899999, 'bch', {
           thousandsSeparator: ' ',
           decimalSeparator: ','
         }],

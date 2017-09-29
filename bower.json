@@ -1,16 +1,16 @@
 {
-  "name": "bcccore-wallet-client",
+  "name": "bch-wallet-client",
   "main": "index.js",
   "version": "0.0.1",
-  "homepage": "https://github.com/owstack/bcccore-wallet-client",
-  "description": "Client for bcccore-wallet-service.",
+  "homepage": "https://github.com/owstack/bch-wallet-client",
+  "description": "Client for bch-wallet-service.",
   "keywords": [
     "bitcoin",
     "copay",
     "multisig",
     "wallet",
     "client",
-    "bcccore"
+    "bch"
   ],
   "ignore": [
     "**/.*",

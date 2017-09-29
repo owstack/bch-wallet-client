@@ -4,7 +4,7 @@ var _ = require('lodash');
 var chai = require('chai');
 var sinon = require('sinon');
 var should = chai.should();
-var Bcccore = require('bcccore-lib');
+var bchLib = require('bch-lib');
 
 var Utils = require('../lib/common/utils');
 
@@ -58,19 +58,19 @@ describe('Utils', function() {
         args: [1, 'bit'],
         expected: '0',
       }, {
-        args: [1, 'bcc'],
+        args: [1, 'bch'],
         expected: '0.00',
       }, {
-        args: [400050000, 'bcc'],
+        args: [400050000, 'bch'],
         expected: '4.0005',
       }, {
-        args: [400000000, 'bcc'],
+        args: [400000000, 'bch'],
         expected: '4.00',
       }, {
-        args: [49999, 'bcc'],
+        args: [49999, 'bch'],
         expected: '0.000499',
       }, {
-        args: [100000000, 'bcc'],
+        args: [100000000, 'bch'],
         expected: '1.00',
       }, {
         args: [0, 'bit'],
@@ -79,19 +79,19 @@ describe('Utils', function() {
         args: [12345678, 'bit'],
         expected: '123,456',
       }, {
-        args: [12345678, 'bcc'],
+        args: [12345678, 'bch'],
         expected: '0.123456',
       }, {
-        args: [12345611, 'bcc'],
+        args: [12345611, 'bch'],
         expected: '0.123456',
       }, {
-        args: [1234, 'bcc'],
+        args: [1234, 'bch'],
         expected: '0.000012',
       }, {
-        args: [1299, 'bcc'],
+        args: [1299, 'bch'],
         expected: '0.000012',
       }, {
-        args: [1234567899999, 'bcc'],
+        args: [1234567899999, 'bch'],
         expected: '12,345.678999',
       }, {
         args: [12345678, 'bit', {
@@ -99,12 +99,12 @@ describe('Utils', function() {
         }],
         expected: '123.456',
       }, {
-        args: [12345678, 'bcc', {
+        args: [12345678, 'bch', {
           decimalSeparator: ','
         }],
         expected: '0,123456',
       }, {
-        args: [1234567899999, 'bcc', {
+        args: [1234567899999, 'bch', {
           thousandsSeparator: ' ',
           decimalSeparator: ','
         }],
@@ -120,7 +120,7 @@ describe('Utils', function() {
         args: [1, 'bit'],
         expected: '0.01',
       }, {
-        args: [1, 'bcc'],
+        args: [1, 'bch'],
         expected: '0.00000001',
       }, {
         args: [0, 'bit'],
@@ -129,22 +129,22 @@ describe('Utils', function() {
         args: [12345678, 'bit'],
         expected: '123,456.78',
       }, {
-        args: [12345678, 'bcc'],
+        args: [12345678, 'bch'],
         expected: '0.12345678',
       }, {
-        args: [1234567, 'bcc'],
+        args: [1234567, 'bch'],
         expected: '0.01234567',
       }, {
-        args: [12345611, 'bcc'],
+        args: [12345611, 'bch'],
         expected: '0.12345611',
       }, {
-        args: [1234, 'bcc'],
+        args: [1234, 'bch'],
         expected: '0.00001234',
       }, {
-        args: [1299, 'bcc'],
+        args: [1299, 'bch'],
         expected: '0.00001299',
       }, {
-        args: [1234567899999, 'bcc'],
+        args: [1234567899999, 'bch'],
         expected: '12,345.67899999',
       }, {
         args: [12345678, 'bit', {
@@ -152,12 +152,12 @@ describe('Utils', function() {
         }],
         expected: "123'456.78",
       }, {
-        args: [12345678, 'bcc', {
+        args: [12345678, 'bch', {
           decimalSeparator: ','
         }],
         expected: '0,12345678',
       }, {
-        args: [1234567899999, 'bcc', {
+        args: [1234567899999, 'bch', {
           thousandsSeparator: ' ',
           decimalSeparator: ','
         }],
@@ -226,7 +226,7 @@ describe('Utils', function() {
 
   describe('#privateKeyToAESKey', function() {
     it('should be ok', function() {
-      var privKey = new Bcccore.PrivateKey('09458c090a69a38368975fb68115df2f4b0ab7d1bc463fc60c67aa1730641d6c').toString();
+      var privKey = new bchLib.PrivateKey('09458c090a69a38368975fb68115df2f4b0ab7d1bc463fc60c67aa1730641d6c').toString();
       Utils.privateKeyToAESKey(privKey).should.be.equal('2HvmUYBSD0gXLea6z0n7EQ==');
     });
     it('should fail if pk has invalid values', function() {
@@ -249,9 +249,9 @@ describe('Utils', function() {
 
   describe('#verifyRequestPubKey', function() {
     it('should generate and check request pub key', function() {
-      var reqPubKey = (new Bcccore.PrivateKey).toPublicKey();
-      var xPrivKey = new Bcccore.HDPrivateKey();
-      var xPubKey = new Bcccore.HDPublicKey(xPrivKey);
+      var reqPubKey = (new bchLib.PrivateKey).toPublicKey();
+      var xPrivKey = new bchLib.HDPrivateKey();
+      var xPubKey = new bchLib.HDPublicKey(xPrivKey);
 
 
       var sig = Utils.signRequestPubKey(reqPubKey.toString(), xPrivKey);
@@ -261,12 +261,12 @@ describe('Utils', function() {
 
     it('should fail to check a request pub key with wrong key', function() {
       var reqPubKey = '02c2c1c6e75cfc50235ff4a2eb848385c2871b8c94e285ee82eaced1dcd5dd568e';
-      var xPrivKey = new Bcccore.HDPrivateKey();
-      var xPubKey = new Bcccore.HDPublicKey(xPrivKey);
+      var xPrivKey = new bchLib.HDPrivateKey();
+      var xPubKey = new bchLib.HDPublicKey(xPrivKey);
       var sig = Utils.signRequestPubKey(reqPubKey, xPrivKey);
 
-      var xPrivKey2 = new Bcccore.HDPrivateKey();
-      var xPubKey2 = new Bcccore.HDPublicKey(xPrivKey2);
+      var xPrivKey2 = new bchLib.HDPrivateKey();
+      var xPubKey2 = new bchLib.HDPublicKey(xPrivKey2);
       var valid = Utils.verifyRequestPubKey(reqPubKey, sig, xPubKey2);
       valid.should.be.equal(false);
     });
