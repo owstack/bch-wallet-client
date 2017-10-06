@@ -11,8 +11,8 @@ var TestData = require('./testdata');
 describe('paypro', function() {
   var xhr, httpNode, clock;
   before(function() {
-    // Stub time before cert expiration at Mar 27 2016
-    clock = sinon.useFakeTimers(1459105693843);
+    // Stub time before cert expiration at Oct 06 2017
+    clock = sinon.useFakeTimers(1507303361000);
 
     xhr = {};
     xhr.onCreate = function(req) {};
@@ -57,7 +57,7 @@ describe('paypro', function() {
 
   it('Make a PP request with browser', function(done) {
     PayPro.get({
-      url: 'http://an.url.com/paypro',
+      url: 'https://bitpay.com/i/SsiUBTwf4YxgJqJjE8YbBj',
       xhr: xhr,
       env: 'browser',
     }, function(err, res) {
@@ -69,7 +69,7 @@ describe('paypro', function() {
 
   it('Make a PP request with browser with headers', function(done) {
     PayPro.get({
-      url: 'http://an.url.com/paypro',
+      url: 'https://bitpay.com/i/SsiUBTwf4YxgJqJjE8YbBj',
       xhr: xhr,
       env: 'browser',
       headers: {
@@ -93,7 +93,7 @@ describe('paypro', function() {
       xhr.onerror();
     };
     PayPro.get({
-      url: 'http://an.url.com/paypro',
+      url: 'https://bitpay.com/i/SsiUBTwf4YxgJqJjE8YbBj',
       xhr: xhr,
       env: 'browser',
     }, function(err, res) {
@@ -109,7 +109,7 @@ describe('paypro', function() {
     };
     xhr.statusText = 'myerror';
     PayPro.get({
-      url: 'http://an.url.com/paypro',
+      url: 'https://bitpay.com/i/SsiUBTwf4YxgJqJjE8YbBj',
       xhr: xhr,
       env: 'browser',
     }, function(err, res) {
@@ -129,7 +129,7 @@ describe('paypro', function() {
 
     xhr.statusText = null;
     PayPro.get({
-      url: 'http://an.url.com/paypro',
+      url: 'https://bitpay.com/i/SsiUBTwf4YxgJqJjE8YbBj',
       httpNode: httpNode,
       env: 'node',
     }, function(err, res) {
@@ -142,7 +142,7 @@ describe('paypro', function() {
   it('Make a PP request with node with HTTP error', function(done) {
     httpNode.error = 404;
     PayPro.get({
-      url: 'http://an.url.com/paypro',
+      url: 'https://bitpay.com/i/SsiUBTwf4YxgJqJjE8YbBj',
       httpNode: httpNode,
       env: 'node',
     }, function(err, res) {
@@ -159,7 +159,7 @@ describe('paypro', function() {
     for (var i = 0; i < payment.length; i++) {
       s += payment[i].toString(16);
     }
-    s.should.equal('a4c7b22696e766f6963654964223a22436962454a4a74473174394837374b6d4d3631453274222c226d65726368616e744964223a22444766754344656f66556e576a446d5537454c634568227d12412ab12341a1d864121976a914ae6eeec7e05624db748f9c16cce6fb53696ab3988ac');
+    s.should.equal('a4c7b22696e766f6963654964223a225373695542547766345978674a714a6a45385962426a222c226d65726368616e744964223a2254785a35527943686d5a773269734b6a4a5747684263227d12412ab12341a1d864121976a914ae6eeec7e05624db748f9c16cce6fb53696ab3988ac');
   });
 
   it('Send a PP payment (browser)', function(done) {
