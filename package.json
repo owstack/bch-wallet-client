@@ -26,7 +26,7 @@
     "bch-mnemonic": "https://github.com/owstack/bch-mnemonic",
     "bch-payment-protocol": "https://github.com/owstack/bch-payment-protocol",
     "json-stable-stringify": "^1.0.0",
-    "lodash": "^3.3.1",
+    "lodash": "^4.17.4",
     "preconditions": "^1.0.8",
     "sjcl": "1.0.3",
     "superagent": "^3.4.1"
