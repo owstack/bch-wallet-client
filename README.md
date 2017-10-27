@@ -7,10 +7,6 @@ Bch Wallet Client
 
 The client library for [bch-wallet-service](https://github.com/owstack/bch-wallet-service).
 
-## Attribution
-
-This repository was created by copy forking [bitcore-wallet-client commit d986bbb](https://github.com/bitpay/bitcore-wallet-client/commit/d986bbb69d01be56f1cfd09c89625f587de2bc02).
-
 ## Description
 
 This package communicates with BCHWS [Bch wallet service](https://github.com/owstack/bch-wallet-service) using the REST API. All REST endpoints are wrapped as simple async methods. All relevant responses from BCHWS are checked independently by the peers, thus the importance of using this library when talking to a third party BCHWS instance.
