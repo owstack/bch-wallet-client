@@ -1,5 +1,5 @@
 {
-  "name": "bch-wallet-client",
+  "name": "@owstack/bch-wallet-client",
   "description": "Client for bch-wallet-service.",
   "version": "0.0.1",
   "license": "MIT",
@@ -22,9 +22,9 @@
   "dependencies": {
     "async": "^0.9.0",
     "bip38": "^1.3.0",
-    "bch-lib": "https://github.com/owstack/bch-lib",
-    "bch-mnemonic": "https://github.com/owstack/bch-mnemonic",
-    "bch-payment-protocol": "https://github.com/owstack/bch-payment-protocol",
+    "@owstack/bch-lib": "^0.0.1",
+    "@owstack/bch-mnemonic": "^0.0.1",
+    "@owstack/bch-payment-protocol": "^0.0.1",
     "json-stable-stringify": "^1.0.0",
     "lodash": "^4.17.4",
     "preconditions": "^1.0.8",
@@ -32,7 +32,7 @@
     "superagent": "^3.4.1"
   },
   "devDependencies": {
-    "bch-wallet-service": "https://github.com/owstack/bch-wallet-service",
+    "@owstack/bch-wallet-service": "^0.0.1",
     "browserify": "^13.1.0",
     "chai": "^1.9.1",
     "coveralls": "^2.11.2",

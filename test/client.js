@@ -15,10 +15,10 @@ var tingodb = require('tingodb')({
 
 var log = require('../lib/log');
 
-var bchLib = require('bch-lib');
-var bchPayPro = require('bch-payment-protocol');
+var bchLib = require('@owstack/bch-lib');
+var bchPayPro = require('@owstack/bch-payment-protocol');
 
-var BCHWS = require('bch-wallet-service');
+var BCHWS = require('@owstack/bch-wallet-service');
 
 var Common = require('../lib/common');
 var Constants = Common.Constants;

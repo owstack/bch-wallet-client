@@ -29,7 +29,7 @@ Then create two files `irene.js` and `tomas.js` with the content below:
 **irene.js**
 
 ``` javascript
-var Client = require('bch-wallet-client');
+var Client = require('@owstack/bch-wallet-client');
 
 
 var fs = require('fs');
@@ -55,7 +55,7 @@ client.createWallet("My Wallet", "Irene", 2, 2, {network: 'testnet/bch'}, functi
 
 ``` javascript
 
-var Client = require('bch-wallet-client');
+var Client = require('@owstack/bch-wallet-client');
 
 
 var fs = require('fs');
