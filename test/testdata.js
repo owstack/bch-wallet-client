@@ -86,7 +86,7 @@ var payProData = {
   expires: 1507039285,
   memo: 'Payment request for BitPay invoice SsiUBTwf4YxgJqJjE8YbBj for merchant BitGive',
   time: 1507038385,
-  toAddress: 'CepUQ7u4XmMpPY9rgBCrgr6eofXqcxUiGv',
+  toAddress: '1PMaq5YzeiPHVQFRzRsw7LUdBYKRgfooGc',
   amount: 1020000,
   network: Constants.LIVENET,
   domain: 'bitpay.com',
