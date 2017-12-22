@@ -1,7 +1,7 @@
 {
   "name": "@owstack/bch-wallet-client",
   "description": "Client for bch-wallet-service.",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "license": "MIT",
   "keywords": [
     "bitcoin",
@@ -32,7 +32,7 @@
     "superagent": "^3.4.1"
   },
   "devDependencies": {
-    "@owstack/bch-wallet-service": "^0.0.8",
+    "@owstack/bch-wallet-service": "^0.0.9",
     "browserify": "^13.1.0",
     "chai": "^1.9.1",
     "coveralls": "^2.11.2",
